@@ -47,7 +47,7 @@ class Version1X extends AbstractSocketIO
 
         $this->handshake();
 
-        $errors = [null, null];
+        $errors = array(null, null);
         $host   = sprintf('%s:%d', $this->url['host'], $this->url['port']);
 
         if (true === $this->url['secured']) {
@@ -88,7 +88,7 @@ class Version1X extends AbstractSocketIO
             $namespace .= ',';
         }
 
-        return $this->write(EngineInterface::MESSAGE, static::EVENT . $namespace . json_encode([$event, $args]));
+        return $this->write(EngineInterface::MESSAGE, static::EVENT . $namespace . json_encode(array($event, $args)));
     }
 
     /** {@inheritDoc} */
@@ -143,9 +143,9 @@ class Version1X extends AbstractSocketIO
             return;
         }
 
-        $query = ['use_b64'   => $this->options['use_b64'],
+        $query = array('use_b64'   => $this->options['use_b64'],
                   'EIO'       => $this->options['version'],
-                  'transport' => $this->options['transport']];
+                  'transport' => $this->options['transport']);
 
         if (isset($this->url['query'])) {
             $query = array_replace($query, $this->url['query']);
@@ -154,7 +154,7 @@ class Version1X extends AbstractSocketIO
         $context = $this->context;
 
         if (!isset($context[$this->url['secured'] ? 'ssl' : 'http'])) {
-            $context[$this->url['secured'] ? 'ssl' : 'http'] = [];
+            $context[$this->url['secured'] ? 'ssl' : 'http'] = array();
         }
 
         $context[$this->url['secured'] ? 'ssl' : 'http']['timeout'] = (float) $this->options['timeout'];
@@ -178,19 +178,19 @@ class Version1X extends AbstractSocketIO
     /** Upgrades the transport to WebSocket */
     private function upgradeTransport()
     {
-        $query = ['sid'       => $this->session->id,
+        $query = array('sid'       => $this->session->id,
                   'EIO'       => $this->options['version'],
                   'use_b64'   => $this->options['use_b64'],
-                  'transport' => static::TRANSPORT_WEBSOCKET];
+                  'transport' => static::TRANSPORT_WEBSOCKET);
 
         $url = sprintf('/%s/?%s', trim($this->url['path'], '/'), http_build_query($query));
         $key = base64_encode(sha1(uniqid(mt_rand(), true), true));
 
         $origin = '*';
-        $headers = isset($this->context['headers']) ? (array) $this->context['headers'] : [] ;
+        $headers = isset($this->context['headers']) ? (array) $this->context['headers'] : array();
 
         foreach ($headers as $header) {
-            $matches = [];
+            $matches = array();
 
             if (preg_match('`^Origin:\s*(.+?)$`', $header, $matches)) {
                 $origin = $matches[1];

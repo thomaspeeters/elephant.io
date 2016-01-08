@@ -58,7 +58,7 @@ class Version0X extends AbstractSocketIO
 
         $this->handshake();
 
-        $errors = [null, null];
+        $errors = array(null, null);
         $host   = sprintf('%s:%d', $this->url['host'], $this->url['port']);
 
         if (true === $this->url['secured']) {
@@ -68,7 +68,7 @@ class Version0X extends AbstractSocketIO
         $this->stream = stream_socket_client($host, $errors[0], $errors[1], $this->options['timeout'], STREAM_CLIENT_CONNECT, stream_context_create($this->context));
 
         if (!is_resource($this->stream)) {
-            throw new SocketException($error[0], $error[1]);
+            throw new SocketException($errors[0], $errors[1]);
         }
 
         stream_set_timeout($this->stream, $this->options['timeout']);
@@ -92,7 +92,7 @@ class Version0X extends AbstractSocketIO
     /** {@inheritDoc} */
     public function emit($event, array $args)
     {
-        $this->write(static::EVENT, json_encode(['name' => $event, 'args' => $args]));
+        $this->write(static::EVENT, json_encode(array('name' => $event, 'args' => $args)));
     }
 
     /** {@inheritDoc} */
@@ -149,7 +149,7 @@ class Version0X extends AbstractSocketIO
         $context = $this->context;
 
         if (!isset($context[$this->url['secured'] ? 'ssl' : 'http'])) {
-            $context[$this->url['secured'] ? 'ssl' : 'http'] = [];
+            $context[$this->url['secured'] ? 'ssl' : 'http'] = array();
         }
 
         $context[$this->url['secured'] ? 'ssl' : 'http']['timeout'] = (float) $this->options['timeout'];
@@ -194,10 +194,10 @@ class Version0X extends AbstractSocketIO
         $key = base64_encode(sha1(uniqid(mt_rand(), true), true));
 
         $origin = '*';
-        $headers = isset($this->context['headers']) ? (array) $this->context['headers'] : [] ;
+        $headers = isset($this->context['headers']) ? (array) $this->context['headers'] : array();
 
         foreach ($headers as $header) {
-            $matches = [];
+            $matches = array();
 
             if (preg_match('`^Origin:\s*(.+?)$`', $header, $matches)) {
                 $origin = $matches[1];

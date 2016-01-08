@@ -48,7 +48,7 @@ abstract class AbstractSocketIO implements EngineInterface
     /** @var mixed[] Array of php stream context options */
     protected $context;
 
-    public function __construct($url, array $options = [])
+    public function __construct($url, array $options = array())
     {
         $this->url = $this->parseUrl($url);
         $this->options = array_replace($this->getDefaultOptions(), $options);
@@ -115,8 +115,8 @@ abstract class AbstractSocketIO implements EngineInterface
         $data = fread($this->stream, 2);
         $bytes = unpack('C*', $data);
 
-        $mask = ($bytes[2] & 0b10000000) >> 7;
-        $length = $bytes[2] & 0b01111111;
+        $mask = ($bytes[2] & hexdec('0b10000000')) >> 7;
+        $length = $bytes[2] & hexdec('0b01111111');
 
         /*
          * Here is where it is getting tricky :
@@ -130,10 +130,10 @@ abstract class AbstractSocketIO implements EngineInterface
          * processors architectures).
          */
         switch ($length) {
-            case 0x7D: // 125
+            case hexdec('0x7D'): // 125
             break;
 
-            case 0x7E: // 126
+            case hexdec('0x7E'): // 126
                 $data .= $bytes = fread($this->stream, 2);
                 $bytes = unpack('n', $bytes);
 
@@ -144,7 +144,7 @@ abstract class AbstractSocketIO implements EngineInterface
                 $length = $bytes[1];
             break;
 
-            case 0x7F: // 127
+            case hexdec('0x7F'): // 127
                 // are (at least) 64 bits not supported by the architecture ?
                 if (8 > PHP_INT_SIZE) {
                     throw new DomainException('64 bits unsigned integer are not supported on this architecture');
@@ -186,7 +186,10 @@ abstract class AbstractSocketIO implements EngineInterface
     /**
      * Parse an url into parts we may expect
      *
-     * @return string[] information on the given URL
+     * @param $url
+     *
+     * @return \string[] information on the given URL
+     * @throws MalformedUrlException
      */
     protected function parseUrl($url)
     {
@@ -196,10 +199,10 @@ abstract class AbstractSocketIO implements EngineInterface
             throw new MalformedUrlException($url);
         }
 
-        $server = array_replace(['scheme' => 'http',
+        $server = array_replace(array('scheme' => 'http',
                                  'host'   => 'localhost',
-                                 'query'  => [],
-                                 'path'   => 'socket.io'], $parsed);
+                                 'query'  => array(),
+                                 'path'   => 'socket.io'), $parsed);
 
         if (!isset($server['port'])) {
             $server['port'] = 'https' === $server['scheme'] ? 443 : 80;
@@ -222,10 +225,10 @@ abstract class AbstractSocketIO implements EngineInterface
      */
     protected function getDefaultOptions()
     {
-        return ['context'   => [],
+        return array('context'   => array(),
                 'debug'     => false,
                 'wait'      => 100*1000,
-                'timeout'   => ini_get("default_socket_timeout")];
+                'timeout'   => ini_get("default_socket_timeout"));
     }
 }
 

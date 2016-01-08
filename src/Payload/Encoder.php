@@ -52,20 +52,20 @@ class Encoder extends AbstractPayload
         $pack   = '';
         $length = strlen($this->data);
 
-        if (0xFFFF < $length) {
-            $pack   = pack('NN', ($length & 0xFFFFFFFF00000000) >> 0b100000, $length & 0x00000000FFFFFFFF);
-            $length = 0x007F;
-        } elseif (0x007D < $length) {
+        if (hexdec('0xFFFF') < $length) {
+            $pack   = pack('NN', ($length & hexdec('0xFFFFFFFF00000000')) >> hexdec('0b100000'), $length & hexdec('0x00000000FFFFFFFF'));
+            $length = hexdec('0x007F');
+        } elseif (hexdec('0x007D') < $length) {
             $pack   = pack('n*', $length);
-            $length = 0x007E;
+            $length = hexdec('0x007E');
         }
 
-        $payload = ($this->fin << 0b001) | $this->rsv[0];
-        $payload = ($payload   << 0b001) | $this->rsv[1];
-        $payload = ($payload   << 0b001) | $this->rsv[2];
-        $payload = ($payload   << 0b100) | $this->opCode;
-        $payload = ($payload   << 0b001) | $this->mask;
-        $payload = ($payload   << 0b111) | $length;
+        $payload = ($this->fin << hexdec('0b001')) | $this->rsv[0];
+        $payload = ($payload   << hexdec('0b001')) | $this->rsv[1];
+        $payload = ($payload   << hexdec('0b001')) | $this->rsv[2];
+        $payload = ($payload   << hexdec('0b100')) | $this->opCode;
+        $payload = ($payload   << hexdec('0b001')) | $this->mask;
+        $payload = ($payload   << hexdec('0b111')) | $length;
 
         $data    = $this->data;
         $payload = pack('n', $payload) . $pack;
@@ -82,7 +82,7 @@ class Encoder extends AbstractPayload
     {
         $this->encode();
 
-        return $this->payload;
+        return (string)$this->payload;
     }
 }
 

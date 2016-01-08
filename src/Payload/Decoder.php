@@ -51,19 +51,21 @@ class Decoder extends AbstractPayload implements Countable
 
         $payload = array_map('ord', str_split($this->payload));
 
-        $this->fin = ($payload[0] >> 0b111);
+        $this->fin = ($payload[0] >> hexdec('0b111'));
 
-        $this->rsv = [($payload[0] >> 0b110) & 0b1,  // rsv1
-                      ($payload[0] >> 0b101) & 0b1,  // rsv2
-                      ($payload[0] >> 0b100) & 0b1]; // rsv3
+        $this->rsv = array(
+            ($payload[0] >> hexdec('0b110')) & hexdec('0b1'), // rsv1
+            ($payload[0] >> hexdec('0b101')) & hexdec('0b1'), // rsv2
+            ($payload[0] >> hexdec('0b100')) & hexdec('0b1')  // rsv3
+        );
 
-        $this->opCode = $payload[0] & 0xF;
-        $this->mask   = (bool) ($payload[1] >> 0b111);
+        $this->opCode = $payload[0] & hexdec('0xF');
+        $this->mask   = (bool) ($payload[1] >> hexdec('0b111'));
 
         $payloadOffset = 2;
 
         if ($length > 125) {
-            $payloadOffset = (0xFFFF < $length && 0xFFFFFFFF >= $length) ? 6 : 4;
+            $payloadOffset = (hexdec('0xFFFF') < $length && hexdec('0xFFFFFFFF') >= $length) ? 6 : 4;
         }
 
         $payload = implode('', array_map('chr', $payload));
@@ -92,7 +94,7 @@ class Decoder extends AbstractPayload implements Countable
             return $this->length;
         }
 
-        $length = ord($this->payload[1]) & 0x7F;
+        $length = ord($this->payload[1]) & hexdec('0x7F');
 
         if ($length == 126 || $length == 127) {
             $length = unpack('H*', substr($this->payload, 2, ($length == 126 ? 2 : 4)));
